@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-press-start: "Press Start 2P", cursive;
+  }
+}
+
+.font-press-start {
+  font-family: var(--font-press-start);
+}
+.parent-container {
+  position: relative; /* 부모 요소에 position relative 추가 */
+  overflow: hidden; /* 스크롤바 방지 */
+  height: 100vh; /* 높이를 100vh로 설정 */
+}
+.profile-title {
+  font-family: 'Press Start 2P', cursive; /* Press Start 2P 폰트 적용 */
+  font-size: 24px; /* 원하는 크기로 조정 */
+  color: #ffffff; /* 텍스트 색상 조정 */
+}
