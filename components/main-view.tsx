@@ -57,10 +57,12 @@ export function MainView() {
     setLoading(true); // 요청 시작 전에 loading 상태 설정
 
     let newData = []; // 새로운 데이터를 받을 변수
-    let int = 1; // 추가적인 페이지 시도를 위한 변수
+    let int = 0; // 추가적인 페이지 시도를 위한 변수
+
     try {
       console.log(`Fetching portfolios for page: ${page}`);
       let data = await fetchPortfolios(page); // 첫 번째 요청
+
       // data가 비어있으면, 추가적인 페이지를 시도
       while (data.length === 0 && int < 5) {
         console.log("더 이상 포트폴리오가 없습니다. 다른 페이지를 시도합니다.");
@@ -68,18 +70,26 @@ export function MainView() {
         int += 1;
         data = newData; // 새로운 데이터로 갱신
       }
+
       // 여전히 데이터가 없으면 종료
       if (data.length === 0) {
         console.log("더 이상 포트폴리오가 없습니다.");
         return;
       }
-      // 포트폴리오 추가
-      setPortfolios((prevPortfolios) => [...prevPortfolios, ...data]);
-      setCurrentPage(page + int);
-      // 첫 번째 포트폴리오 설정
+
+      // 새 포트폴리오가 있다면 첫 번째 포트폴리오를 설정
       if (!currentPortfolio && data.length > 0) {
-        setCurrentPortfolio(data[0]);
+        setCurrentPortfolio(data[0]); // 첫 번째 포트폴리오 설정
       }
+
+      // 새로운 포트폴리오 배열로 갱신
+      setPortfolios((prevPortfolios) => {
+        // data가 비어있지 않으면 새로운 데이터를 이전 배열에 추가
+        return prevPortfolios.length === 0 ? data : [...prevPortfolios, ...data];
+      });
+
+      setCurrentPage(page + int);
+
     } catch (err) {
       console.error("Error loading portfolios:", err);
       setError("Failed to load portfolios");
