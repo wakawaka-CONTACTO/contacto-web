@@ -20,7 +20,7 @@ export function MainView() {
   const [portfolios, setPortfolios] = useState<Portfolio[]>([])
   const [currentPortfolio, setCurrentPortfolio] = useState<Portfolio | null>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(0)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
@@ -39,78 +39,89 @@ export function MainView() {
   const [isInitialLoad, setIsInitialLoad] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken")
+    const token =  localStorage.getItem("accessToken")
     if (!token) {
       router.push("/login")
       return
     }
-    if (isInitialLoad) {
+
+    if (isInitialLoad && portfolios.length === 0) {
       setIsInitialLoad(false)
-      loadPortfolios().then(r => r)
       setCurrentPage(0)
+      loadPortfolios(0).then(r => r)
     }
-  }, [router, isInitialLoad,loadPortfolios])
+  }, [router, isInitialLoad, portfolios.length])
 
   async function loadPortfolios(page = 0) {
+    if (loading) return; // 중복 요청 방지
+    setLoading(true); // 요청 시작 전에 loading 상태 설정
+
+    let newData = []; // 새로운 데이터를 받을 변수
+    let int = 1; // 추가적인 페이지 시도를 위한 변수
     try {
       console.log(`Fetching portfolios for page: ${page}`);
-      const data = await fetchPortfolios(page);
+      let data = await fetchPortfolios(page); // 첫 번째 요청
+      // data가 비어있으면, 추가적인 페이지를 시도
+      while (data.length === 0 && int < 5) {
+        console.log("더 이상 포트폴리오가 없습니다. 다른 페이지를 시도합니다.");
+        newData = await fetchPortfolios(page + int); // page + int로 다음 페이지 요청
+        int += 1;
+        data = newData; // 새로운 데이터로 갱신
+      }
+      // 여전히 데이터가 없으면 종료
       if (data.length === 0) {
-        return; // 더 이상 포트폴리오가 없으면 종료
+        console.log("더 이상 포트폴리오가 없습니다.");
+        return;
       }
-      setPortfolios((prevPortfolios) => {
-        const newPortfolios = [...prevPortfolios, ...data]; // 기존 포트폴리오에 새로 가져온 포트폴리오 추가
-        setCurrentPage(currentPage)
-        console.log("Updated portfolios. Current queue size:", newPortfolios.length);
-        return newPortfolios;
-      });
-  
-      if (currentPortfolio === null) {
-        setCurrentPortfolio(data[0]); // 첫 번째 포트폴리오 설
+      // 포트폴리오 추가
+      setPortfolios((prevPortfolios) => [...prevPortfolios, ...data]);
+      setCurrentPage(page + int);
+      // 첫 번째 포트폴리오 설정
+      if (!currentPortfolio && data.length > 0) {
+        setCurrentPortfolio(data[0]);
       }
-  
-      setLoading(false);
     } catch (err) {
       console.error("Error loading portfolios:", err);
       setError("Failed to load portfolios");
-      setLoading(false);
+    } finally {
+      setLoading(false); // 요청 완료 후 loading 상태 해제
     }
   }
 
-  async function loadMorePortfolios (){
-      loadPortfolios(currentPage + 1)
+
+  async function loadMorePortfolios() {
+    await loadPortfolios(currentPage) // 수정: currentPage + 1을 전달하지 않음 (loadPortfolios 내부에서 증가)
   }
 
   const handleNext = () => {
-    console.log("Handling next portfolio");
-    if (!currentPortfolio) return;
+    console.log("Handling next portfolio")
+    if (!currentPortfolio) return
 
-    // 전체 윈도우의 overflow를 hidden으로 설정
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow = "hidden"
 
     if (currentImageIndex < currentPortfolio.portfolioImageUrl.length - 1) {
-      setCurrentImageIndex((prev) => prev + 1);
+      setCurrentImageIndex((prev) => prev + 1)
     } else {
       setPortfolios((prevPortfolios) => {
-        const newPortfolios = prevPortfolios.slice(1);
-        console.log("Current queue size after removal:", newPortfolios.length);
-        return newPortfolios;
-      });
+        const newPortfolios = prevPortfolios.slice(1)
+        console.log("Current queue size after removal:", newPortfolios.length)
+        return newPortfolios
+      })
 
       if (portfolios.length > 1) {
-        setCurrentPortfolio(portfolios[1]);
-        setCurrentImageIndex(0);
-      } else if (portfolios.length === 1) {
-        loadMorePortfolios(); // 다음 페이지 로드
+        setCurrentPortfolio(portfolios[1])
+        setCurrentImageIndex(0)
       }
     }
 
-    // 애니메이션이 끝난 후 overflow를 원래대로 되돌림
     setTimeout(() => {
-      document.body.style.overflow = "auto";
-    }, 300); // 애니메이션 시간에 맞춰 조정
+      document.body.style.overflow = "auto"
+    }, 300)
 
-    console.log("Current queue size after next:", portfolios.length);
+    if (portfolios.length <= 1) {
+      console.log("포트폴리오가 거의 없어 새로운 데이터를 요청합니다.")
+      loadMorePortfolios()
+    }
   }
 
 
