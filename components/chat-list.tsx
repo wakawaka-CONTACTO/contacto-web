@@ -24,6 +24,7 @@ export function ChatList() {
       setChatRooms(data)
       setLoading(false)
     } catch (err) {
+      console.log(err)
       setError("Failed to load chat rooms")
       setLoading(false)
     }

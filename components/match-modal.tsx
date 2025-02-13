@@ -16,7 +16,6 @@ interface MatchModalProps {
           userId: number
           username: string
           portfolioImages: string[]
-          portfolioImageUrl: string[]
         }[]
       | null
     chatRoomId: number | null
@@ -26,8 +25,8 @@ interface MatchModalProps {
 
 export function MatchModal({ isOpen, onClose, matchResult }: MatchModalProps) {
   const [showChat, setShowChat] = useState(false)
-  const [selectedMessage, setSelectedMessage] = useState("")
-  const [customMessage, setCustomMessage] = useState("")
+  const [selectedMessage, setSelectedMessage] = useState(null)
+  const [customMessage, setCustomMessage] = useState(null)
 
   if (!isOpen) return null
 
@@ -53,10 +52,8 @@ export function MatchModal({ isOpen, onClose, matchResult }: MatchModalProps) {
   if (showChat && matchResult.chatRoomId) {
     return (
       <ChatRoom
-        chatRoomId={matchResult.chatRoomId}
+        roomId={matchResult.chatRoomId}
         participantId={processedPortfolios[1]?.userId || 0}
-        onClose={onClose}
-        initialMessage={customMessage || selectedMessage}
       />
     )
   }
@@ -93,7 +90,6 @@ export function MatchModal({ isOpen, onClose, matchResult }: MatchModalProps) {
               >
                 <Image
                   src={
-                    processedPortfolios[0]?.portfolioImageUrl?.[0] ||
                     processedPortfolios[0]?.portfolioImages?.[0] ||
                     "/placeholder.svg"
                   }
@@ -110,7 +106,6 @@ export function MatchModal({ isOpen, onClose, matchResult }: MatchModalProps) {
               >
                 <Image
                   src={
-                    processedPortfolios[1]?.portfolioImageUrl?.[0] ||
                     processedPortfolios[1]?.portfolioImages?.[0] ||
                     "/placeholder.svg"
                   }
@@ -144,7 +139,6 @@ export function MatchModal({ isOpen, onClose, matchResult }: MatchModalProps) {
               <div className="relative">
                 <input
                   type="text"
-                  value={customMessage}
                   onChange={(e) => setCustomMessage(e.target.value)}
                   placeholder="Type your message..."
                   className="w-full px-4 py-3 bg-[#c8c8c8] rounded-lg text-black placeholder-black/70 font-pixel"

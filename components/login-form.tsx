@@ -44,6 +44,7 @@ export function LoginForm() {
       await new Promise(resolve => setTimeout(resolve, 500))
       router.push("/main")
       router.refresh() // 네비게이션 상태 리프레시
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError("Invalid email or password")
       setIsLoading(false)

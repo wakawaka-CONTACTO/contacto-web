@@ -174,7 +174,7 @@ export function TalentForm() {
         <div className="max-w-2xl mx-auto px-4 py-12">
           <div className="space-y-8">
             <h1 className="text-4xl font-bold text-center font-mono uppercase">
-              WHAT'S YOUR TALENT?
+              WHAT&#39;S YOUR TALENT?
             </h1>
             {Object.entries(talents).map(([category, { color, items }]) => (
               <div key={category} className="space-y-4">

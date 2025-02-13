@@ -1,4 +1,4 @@
-import type { Portfolio, PageableResponse } from "@/types/portfolio"
+import type { Portfolio } from "@/types/portfolio"
 import type { UserProfile } from "@/types/profile"
 import type { ChatRoom } from "@/types/chat" // Import ChatRoom type
 import { config } from "@/config"

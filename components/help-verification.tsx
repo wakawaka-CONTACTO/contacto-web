@@ -9,8 +9,7 @@ import { useRouter } from "next/navigation"
 export function HelpVerification() {
   const [verificationCode, setVerificationCode] = useState(["", "", "", "", "", ""])
   const [isCodeComplete, setIsCodeComplete] = useState(false)
-  const router = useRouter()
-
+  useRouter();
   const handleCodeChange = (index: number, value: string) => {
     if (value.length > 1) return // Prevent multiple digits
 

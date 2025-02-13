@@ -44,13 +44,12 @@ export function MainView() {
       router.push("/login")
       return
     }
-    
     if (isInitialLoad) {
       setIsInitialLoad(false)
-      loadPortfolios()
+      loadPortfolios().then(r => r)
       setCurrentPage(0)
     }
-  }, [router, isInitialLoad])
+  }, [router, isInitialLoad,loadPortfolios])
 
   async function loadPortfolios(page = 0) {
     try {
@@ -161,6 +160,7 @@ export function MainView() {
       // Move to the next portfolio
       handleNext()
     } catch (err) {
+      console.log(err)
       setError("Failed to send like/dislike")
     }
   }

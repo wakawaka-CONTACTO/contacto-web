@@ -36,7 +36,7 @@ export function PurposeForm() {
         <div className="max-w-md mx-auto px-4 w-full">
           <div className="space-y-8">
             <div className="text-center">
-              <h1 className="text-4xl font-bold mb-2 font-mono uppercase">WHAT'S YOUR PURPOSE?</h1>
+              <h1 className="text-4xl font-bold mb-2 font-mono uppercase">WHAT&#39;S YOUR PURPOSE?</h1>
               <p className="text-sm font-mono uppercase">MULTIPLE SELECTION</p>
             </div>
             <div className="space-y-4">

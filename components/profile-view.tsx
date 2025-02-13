@@ -1,62 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
 import { fetchUserProfile } from "@/lib/api"
 import type { UserProfile } from "@/types/profile"
 import { PURPOSE_MAP, TALENT_MAP } from "@/types/profile"
 import { BottomNav } from "./bottom-nav"
 import { Upload } from "lucide-react"
 import { ImageWithFallback } from "./image-with-fallback"
-
-const talentTypeMap = {
-  "산업 디자인": "Industrial Design",
-  "그래픽 디자인": "Graphic Design",
-  "패션 디자인": "Fashion Design",
-  "UX/UI 디자인": "UX/UI Design",
-  "브랜딩": "Branding",
-  "모션 그래픽": "Motion Graphic",
-  "애니메이션": "Animation",
-  "일러스트레이션": "Illustration",
-  "인테리어 디자인": "Interior Design",
-  "건축 디자인": "Architecture Design",
-  "텍스타일": "Textile",
-  "패브릭 제품": "Fabric Product",
-  "스타일링": "Styling",
-  "가방 디자인": "Bag Design",
-  "신발 디자인": "Shoes Design",
-  "회화": "Painting",
-  "조소": "",  // 매핑 없음
-  "키네틱 아트": "Kinetic Art",
-  "도자기": "Ceramics",
-  "목공": "Woodworking",
-  "주얼리": "Jewelry",
-  "금속 공예": "Metal Craft",
-  "유리 공예": "Glass Craft",
-  "판화": "Printmaking",
-  "미학": "Aesthetics",
-  "터프팅": "Tufting",
-  "시인": "Poet",
-  "글쓰기": "Writing",
-  "사진": "Photography",
-  "광고": "Advertising",
-  "시나리오": "Scenario",
-  "작곡": "Composition",
-  "감독": "Director",
-  "춤": "Dance",
-  "노래": "Singing",
-  "뮤지컬": "Musical",
-  "코미디": "Comedy",
-  "연기": "Acting",
-  "제작": "Production",
-}
-
-
 export function ProfileView() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit")
-  const router = useRouter()
 
   useEffect(() => {
     loadProfile()
@@ -70,11 +23,6 @@ export function ProfileView() {
       console.error("Failed to load profile:", error)
     }
   }
-
-  const handleSettingsClick = () => {
-    router.push("/profile/settings")
-  }
-
   if (!profile) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
