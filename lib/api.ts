@@ -1,8 +1,8 @@
-import type { Portfolio } from "@/types/portfolio"
-import type { UserProfile } from "@/types/profile"
-import type { ChatRoom } from "@/types/chat" // Import ChatRoom type
-import { config } from "@/config"
-import { getAuthToken } from "@/lib/auth"
+import type {Portfolio} from "@/types/portfolio"
+import type {UserProfile} from "@/types/profile"
+import type {ChatRoom} from "@/types/chat" // Import ChatRoom type
+import {config} from "@/config"
+import {getAuthToken} from "@/lib/auth"
 
 const BASE_URL = config.BASE_URL || "http://localhost"
 
@@ -25,8 +25,7 @@ export async function fetchPortfolios(page = 0): Promise<Portfolio[]> {
     throw new Error("Failed to fetch portfolios")
   }
 
-  const data: Portfolio[] = await response.json()
-  return data
+  return await response.json()
 }
 
 export async function fetchChatRooms(page = 0, size = 10): Promise<ChatRoom[]> {
@@ -45,8 +44,7 @@ export async function fetchChatRooms(page = 0, size = 10): Promise<ChatRoom[]> {
     throw new Error("Failed to fetch chat rooms")
   }
 
-  const data = await response.json()
-  return data
+  return await response.json()
 }
 
 // 새로운 함수 추가

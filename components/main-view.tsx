@@ -36,59 +36,56 @@ export function MainView() {
     chatRoomId: number | null
     matched: boolean
   } | null>(null)
-  const [isInitialLoad, setIsInitialLoad] = useState(true)
 
   useEffect(() => {
-    const token =  localStorage.getItem("accessToken")
+    const token = localStorage.getItem("accessToken")
     if (!token) {
       router.push("/login")
       return
     }
+    // 초기 데이터 로드 시 currentPage를 0으로 설정하고 데이터를 가져옵니다.
+    setCurrentPage(0)
+    loadPortfolios(0).then(() => {
+    })
+  }, [])
 
-    if (isInitialLoad && portfolios.length === 0) {
-      setIsInitialLoad(false)
-      setCurrentPage(0)
-      loadPortfolios(0).then(r => r)
+  useEffect(() => {
+    if (portfolios.length > 0) {
+      setCurrentPortfolio(portfolios[0])
     }
-  }, [router, isInitialLoad, portfolios.length])
+  }, [portfolios])
+
 
   async function loadPortfolios(page = 0) {
     if (loading) return; // 중복 요청 방지
     setLoading(true); // 요청 시작 전에 loading 상태 설정
 
-    let newData = []; // 새로운 데이터를 받을 변수
-    let int = 0; // 추가적인 페이지 시도를 위한 변수
-
     try {
       console.log(`Fetching portfolios for page: ${page}`);
-      let data = await fetchPortfolios(page); // 첫 번째 요청
+      let data = await fetchPortfolios(page); // 첫 번째 페이지 데이터 요청
 
-      // data가 비어있으면, 추가적인 페이지를 시도
-      while (data.length === 0 && int < 5) {
-        console.log("더 이상 포트폴리오가 없습니다. 다른 페이지를 시도합니다.");
-        newData = await fetchPortfolios(page + int); // page + int로 다음 페이지 요청
-        int += 1;
-        data = newData; // 새로운 데이터로 갱신
+      // 데이터가 없으면 페이지를 하나씩 증가시키며 추가 데이터를 요청
+      while (data.length === 0 && page < 5) {
+        console.log("포트폴리오가 비어있습니다. 다른 페이지를 시도합니다.");
+        page += 1; // 페이지 증가
+        data = await fetchPortfolios(page); // 새로운 페이지 데이터 요청
       }
 
-      // 여전히 데이터가 없으면 종료
+      // 여전히 데이터가 없다면 종료
       if (data.length === 0) {
         console.log("더 이상 포트폴리오가 없습니다.");
         return;
       }
 
-      // 새 포트폴리오가 있다면 첫 번째 포트폴리오를 설정
-      if (!currentPortfolio && data.length > 0) {
-        setCurrentPortfolio(data[0]); // 첫 번째 포트폴리오 설정
-      }
+      // 새로운 포트폴리오 데이터 추가
+      setPortfolios((prevPortfolios) => [...prevPortfolios, ...data]);
 
-      // 새로운 포트폴리오 배열로 갱신
-      setPortfolios((prevPortfolios) => {
-        // data가 비어있지 않으면 새로운 데이터를 이전 배열에 추가
-        return prevPortfolios.length === 0 ? data : [...prevPortfolios, ...data];
-      });
+      // // 첫 번째 포트폴리오가 없으면 설정
+      // if (!currentPortfolio && data.length > 0) {
+      //   setCurrentPortfolio(data[0]);
+      // }
 
-      setCurrentPage(page + int);
+      setCurrentPage(page + 1); // 페이지 번호 증가
 
     } catch (err) {
       console.error("Error loading portfolios:", err);
@@ -97,6 +94,7 @@ export function MainView() {
       setLoading(false); // 요청 완료 후 loading 상태 해제
     }
   }
+
 
 
   async function loadMorePortfolios() {
@@ -108,7 +106,6 @@ export function MainView() {
     if (!currentPortfolio) return
 
     document.body.style.overflow = "hidden"
-
     if (currentImageIndex < currentPortfolio.portfolioImageUrl.length - 1) {
       setCurrentImageIndex((prev) => prev + 1)
     } else {
@@ -119,7 +116,7 @@ export function MainView() {
       })
 
       if (portfolios.length > 1) {
-        setCurrentPortfolio(portfolios[1])
+        setCurrentPortfolio(portfolios[0])
         setCurrentImageIndex(0)
       }
     }
@@ -170,9 +167,7 @@ export function MainView() {
       if (!response.ok) {
         throw new Error("Failed to send like/dislike")
       }
-
       const result = await response.json()
-
       // Only show match modal if there's a match
       if (result.matched) {
         setMatchResult(result)
